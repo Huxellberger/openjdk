@@ -1,4 +1,4 @@
-/*
+]/*
  * Copyright (c) 2001, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -110,6 +110,9 @@
                                                                             \
   develop(bool, G1RSBarrierRegionFilter, true,                              \
           "If true, generate region filtering code in RS barrier")          \
+                                                                            \
+  product(bool, NumaEnbabled, false,		                            \
+	  "Enables use of LibNuma to optimise for NUMA Architectures")	    \
                                                                             \
   product(size_t, G1UpdateBufferSize, 256,                                  \
           "Size of an update buffer")                                       \
