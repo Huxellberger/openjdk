@@ -187,7 +187,7 @@ HeapRegion* G1CollectedHeap::new_region(size_t word_size, bool is_old, bool do_e
   assert(!is_humongous(word_size) || word_size <= HeapRegion::GrainWords,
          "the only time we use this to allocate a humongous region is "
          "when we are allocating a single humongous region");
-
+  // NUMA Code should probably go here
   HeapRegion* res;
   if (G1StressConcRegionFreeing) {
     if (!_secondary_free_list.is_empty()) {

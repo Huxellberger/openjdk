@@ -111,7 +111,7 @@
   develop(bool, G1RSBarrierRegionFilter, true,                              \
           "If true, generate region filtering code in RS barrier")          \
                                                                             \
-  product(bool, NumaEnbabled, false,		                            \
+  product(bool, NumaEnabled, false,		                            \
 	  "Enables use of LibNuma to optimise for NUMA Architectures")	    \
                                                                             \
   product(size_t, G1UpdateBufferSize, 256,                                  \
