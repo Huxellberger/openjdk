@@ -72,7 +72,7 @@
 #define fstat64 fstat
 #define lstat64 lstat
 #define dirent64 dirent
-#define readdir64_r readdir_r
+#define readdir64_r readdir
 #endif
 
 #include "jni.h"

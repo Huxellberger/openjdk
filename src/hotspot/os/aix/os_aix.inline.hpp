@@ -102,15 +102,11 @@ inline int os::ftruncate(int fd, jlong length) {
 }
 
 inline struct dirent* os::readdir(DIR* dirp, dirent *dbuf) {
-  dirent* p = NULL;
   assert(dirp != NULL, "just checking");
 
   // AIX: slightly different from POSIX.
   // On AIX, readdir_r returns 0 or != 0 and error details in errno.
-  if (::readdir_r(dirp, dbuf, &p) != 0) {
-    return NULL;
-  }
-  return p;
+  return ::readdir(dirp);
 }
 
 inline int os::closedir(DIR *dirp) {

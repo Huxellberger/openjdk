@@ -80,15 +80,9 @@ inline int os::readdir_buf_size(const char *path) {
 
 inline struct dirent* os::readdir(DIR* dirp, dirent* dbuf) {
   assert(dirp != NULL, "just checking");
-  dirent* p;
   int status;
 
-  if((status = ::readdir_r(dirp, dbuf, &p)) != 0) {
-    errno = status;
-    return NULL;
-  } else {
-    return p;
-  }
+  return ::readdir(dirp);
 }
 
 inline int os::closedir(DIR *dirp) {

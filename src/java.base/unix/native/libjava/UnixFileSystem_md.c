@@ -63,7 +63,7 @@
 
 #if defined(_ALLBSD_SOURCE)
   #define dirent64 dirent
-  #define readdir64_r readdir_r
+  #define readdir64_r readdir
   #define stat64 stat
   #ifndef MACOSX
     #define statvfs64 statvfs

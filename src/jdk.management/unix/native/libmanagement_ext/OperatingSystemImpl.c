@@ -79,12 +79,7 @@ static struct dirent* read_dir(DIR* dirp, struct dirent* entry) {
     struct dirent* dbuf = readdir(dirp);
     return dbuf;
 #else /* __linux__ || _ALLBSD_SOURCE */
-    struct dirent* p;
-    if (readdir_r(dirp, entry, &p) == 0) {
-        return p;
-    } else {
-        return NULL;
-    }
+    return readdir(dirp);
 #endif
 }
 

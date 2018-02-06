@@ -52,7 +52,7 @@
 
 #if defined(_ALLBSD_SOURCE)
 #define dirent64 dirent
-#define readdir64_r readdir_r
+#define readdir64_r readdir
 #endif
 
 #if !defined(__solaris__) || defined(__sparcv9) || defined(amd64)
