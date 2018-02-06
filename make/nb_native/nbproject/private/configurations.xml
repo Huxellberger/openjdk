@@ -72,10 +72,14 @@
                   <in>ad_x86_misc.cpp</in>
                   <in>ad_x86_peephole.cpp</in>
                   <in>ad_x86_pipeline.cpp</in>
+                  <in>dfa_x86.cpp</in>
                 </df>
                 <df name="jvmtifiles">
                   <in>bytecodeInterpreterWithChecks.cpp</in>
                   <in>jvmti.h</in>
+                  <in>jvmtiEnter.cpp</in>
+                  <in>jvmtiEnterTrace.cpp</in>
+                  <in>jvmtiEnv.hpp</in>
                 </df>
                 <df name="tracefiles">
                   <in>traceEventClasses.hpp</in>

@@ -33,5 +33,5 @@ public:
 
   G1NUMARegion(G1BlockOffsetTable* bot);
 protected:
-  virtual void initialize(MemRegion mr, bool clear_space, bool mangle_space) override final;
+  virtual void initialize(MemRegion mr, bool clear_space, bool mangle_space);
 };

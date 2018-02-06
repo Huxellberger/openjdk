@@ -1361,8 +1361,8 @@ void InterpreterMacroAssembler::set_mdp_data_at(Register mdp_in,
 void InterpreterMacroAssembler::increment_mdp_data_at(Register mdp_in,
                                                       int constant,
                                                       bool decrement) {
-  // Counter address
-  Address data(mdp_in, constant);
+  Address data;
+  data = Address(mdp_in, constant);
 
   increment_mdp_data_at(data, decrement);
 }
@@ -1396,7 +1396,8 @@ void InterpreterMacroAssembler::increment_mdp_data_at(Register mdp_in,
                                                       Register reg,
                                                       int constant,
                                                       bool decrement) {
-  Address data(mdp_in, reg, Address::times_1, constant);
+  Address data;
+  data = Address(mdp_in, reg, Address::times_1, constant);
 
   increment_mdp_data_at(data, decrement);
 }
