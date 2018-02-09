@@ -1682,6 +1682,7 @@ jint G1CollectedHeap::initialize() {
   // If this happens then we could end up using a non-optimal
   // compressed oops mode.
 
+  /*
   if (NumaEnabled)
   {
       if (numa_available() >= 0)
@@ -1694,6 +1695,7 @@ jint G1CollectedHeap::initialize() {
           log_error(gc)("Failed to active NUMA. System was not configured correctly");
       }
   }
+  */
   ReservedSpace heap_rs = Universe::reserve_heap(max_byte_size,
                                                  heap_alignment);
 
