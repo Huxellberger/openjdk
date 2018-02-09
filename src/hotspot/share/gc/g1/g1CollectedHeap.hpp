@@ -61,6 +61,7 @@
 class HeapRegion;
 class HRRSCleanupTask;
 class GenerationSpec;
+class g1NUMARegion;
 class G1ParScanThreadState;
 class G1ParScanThreadStateSet;
 class G1KlassScanClosure;
@@ -126,6 +127,7 @@ class G1CollectedHeap : public CollectedHeap {
   friend class VM_G1IncCollectionPause;
   friend class VMStructs;
   friend class MutatorAllocRegion;
+  friend class g1NUMARegion;
   friend class G1GCAllocRegion;
   friend class G1HeapVerifier;
 
@@ -485,6 +487,11 @@ protected:
   // For mutator alloc regions.
   HeapRegion* new_mutator_alloc_region(size_t word_size, bool force);
   void retire_mutator_alloc_region(HeapRegion* alloc_region,
+                                   size_t allocated_bytes);
+  
+  // For NUMA alloc regions.
+  HeapRegion* new_NUMA_alloc_region(size_t word_size, bool force);
+  void retire_NUMA_alloc_region(HeapRegion* alloc_region,
                                    size_t allocated_bytes);
 
   // For GC alloc regions.

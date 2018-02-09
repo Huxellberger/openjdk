@@ -23,16 +23,22 @@
  */
 
 #include "precompiled.hpp"
+#include "gc/g1/g1CollectedHeap.inline.hpp"
 #include "gc/g1/g1NUMARegion.hpp"
 
-G1NUMARegion::G1NUMARegion(G1BlockOffsetTable* bot)
-  : G1ContiguousSpace(bot)
+#include <numa.h> 
+
+
+HeapRegion* g1NUMARegion::allocate_new_region(size_t word_size,
+                                                    bool force) 
 {
+  return _g1h->new_NUMA_alloc_region(word_size, force);
 }
 
-void G1NUMARegion::initialize(MemRegion mr, bool clear_space, bool mangle_space)
+void g1NUMARegion::retire_region(HeapRegion* alloc_region,
+                                       size_t allocated_bytes) 
 {
-  G1ContiguousSpace::initialize(mr, clear_space, mangle_space);
+  _g1h->retire_NUMA_alloc_region(alloc_region, allocated_bytes);
 }
 
 

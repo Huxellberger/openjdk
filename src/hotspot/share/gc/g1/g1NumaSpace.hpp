@@ -22,16 +22,14 @@
  *
  */
 
-#include "gc/g1/g1AllocRegion.hpp"
+#include "gc/g1/heapRegion.hpp"
 
 
-// A NUMARegion is similar to a heap region, but uses the NUMA context
+// A NUMASpace is similar to a contiguous space, but allocates with respect
+// to NUMA-wide context
 
-class g1NUMARegion : public G1AllocRegion {
-protected:
-  virtual HeapRegion* allocate_new_region(size_t word_size, bool force);
-  virtual void retire_region(HeapRegion* alloc_region, size_t allocated_bytes);
+class G1NUMASpace : public G1ContiguousSpace {
 public:
-  g1NUMARegion()
-    : G1AllocRegion("Mutator Alloc Region", false /* bot_updates */) { }
+  G1NUMASpace(G1BlockOffsetTable* bot)
+    : G1ContiguousSpace(bot){ }
 };

@@ -84,6 +84,8 @@
 #include "utilities/globalDefinitions.hpp"
 #include "utilities/stack.inline.hpp"
 
+#include <numa.h> 
+
 size_t G1CollectedHeap::_humongous_object_threshold_in_words = 0;
 
 // INVARIANTS/NOTES
@@ -1680,6 +1682,18 @@ jint G1CollectedHeap::initialize() {
   // If this happens then we could end up using a non-optimal
   // compressed oops mode.
 
+  if (NumaEnabled)
+  {
+      if (numa_available() >= 0)
+      {
+          numa_set_localalloc();
+          numa_sched_setaffinity(1, numa_get_interleave_mask());
+      }
+      else
+      {
+          log_error(gc)("Failed to active NUMA. System was not configured correctly");
+      }
+  }
   ReservedSpace heap_rs = Universe::reserve_heap(max_byte_size,
                                                  heap_alignment);
 
@@ -5185,6 +5199,40 @@ HeapRegion* G1CollectedHeap::new_mutator_alloc_region(size_t word_size,
 }
 
 void G1CollectedHeap::retire_mutator_alloc_region(HeapRegion* alloc_region,
+                                                  size_t allocated_bytes) {
+  assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
+  assert(alloc_region->is_eden(), "all mutator alloc regions should be eden");
+
+  collection_set()->add_eden_region(alloc_region);
+  increase_used(allocated_bytes);
+  _hr_printer.retire(alloc_region);
+  // We update the eden sizes here, when the region is retired,
+  // instead of when it's allocated, since this is the point that its
+  // used space has been recored in _summary_bytes_used.
+  g1mm()->update_eden_size();
+}
+
+// Methods for the mutator alloc region
+
+HeapRegion* G1CollectedHeap::new_NUMA_alloc_region(size_t word_size,
+                                                      bool force) {
+  assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
+  bool should_allocate = g1_policy()->should_allocate_mutator_region();
+  if (force || should_allocate) {
+    HeapRegion* new_alloc_region = new_region(word_size,
+                                              false /* is_old */,
+                                              false /* do_expand */);
+    if (new_alloc_region != NULL) {
+      set_region_short_lived_locked(new_alloc_region);
+      _hr_printer.alloc(new_alloc_region, !should_allocate);
+      _verifier->check_bitmaps("Mutator Region Allocation", new_alloc_region);
+      return new_alloc_region;
+    }
+  }
+  return NULL;
+}
+
+void G1CollectedHeap::retire_NUMA_alloc_region(HeapRegion* alloc_region,
                                                   size_t allocated_bytes) {
   assert_heap_locked_or_at_safepoint(true /* should_be_vm_thread */);
   assert(alloc_region->is_eden(), "all mutator alloc regions should be eden");
