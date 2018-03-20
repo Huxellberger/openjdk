@@ -4,4 +4,15 @@
         <activeConfTypeElem>0</activeConfTypeElem>
         <activeConfIndexElem>1</activeConfIndexElem>
     </data>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/home/jake/openjdk/src/hotspot/share/gc/parallel/immutableSpace.hpp</file>
+            <file>file:/home/jake/openjdk/src/hotspot/share/gc/g1/heapRegion.hpp</file>
+            <file>file:/home/jake/openjdk/src/hotspot/share/gc/g1/g1NUMASpace.cpp</file>
+            <file>file:/home/jake/openjdk/src/hotspot/share/gc/parallel/mutableNUMASpace.cpp</file>
+            <file>file:/home/jake/openjdk/src/hotspot/share/gc/g1/g1NumaSpace.hpp</file>
+            <file>file:/home/jake/openjdk/src/hotspot/share/gc/parallel/mutableNUMASpace.hpp</file>
+        </group>
+    </open-files>
 </project-private>

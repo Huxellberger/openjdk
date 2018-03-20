@@ -138,8 +138,8 @@ public:
 
   bool is_old_or_humongous() const { return (get() & (OldMask | HumongousMask)) != 0; }
 
-  // is_pinned regions may be archive or humongous
-  bool is_pinned() const { return (get() & PinnedMask) != 0; }
+  // is_pinned regions may be archive or humongous or NUMA context aware
+  bool is_pinned() const { return (NumaEnabled || (get() & PinnedMask) != 0); }
 
   // Setters
 

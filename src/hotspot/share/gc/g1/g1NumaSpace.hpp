@@ -33,180 +33,21 @@ class G1BlockOffsetTable;
 
 class G1NUMASpace : public HeapRegion {
 
-  
-class LGRPSpace : public CHeapObj<mtGC> {
-    int _lgrp_id;
-    MutableSpace* _space;
-    MemRegion _invalid_region;
-    AdaptiveWeightedAverage *_alloc_rate;
-    bool _allocation_failed;
+public:
+    
+  G1NUMASpace(uint hrm_index,
+             G1BlockOffsetTable* bot,
+             MemRegion mr);
 
-    struct SpaceStats {
-      size_t _local_space, _remote_space, _unbiased_space, _uncommited_space;
-      size_t _large_pages, _small_pages;
-
-      SpaceStats() {
-        _local_space = 0;
-        _remote_space = 0;
-        _unbiased_space = 0;
-        _uncommited_space = 0;
-        _large_pages = 0;
-        _small_pages = 0;
-      }
-    };
-
-    SpaceStats _space_stats;
-
-    char* _last_page_scanned;
-    char* last_page_scanned()            { return _last_page_scanned; }
-    void set_last_page_scanned(char* p)  { _last_page_scanned = p;    }
-   public:
-    LGRPSpace(int l, size_t alignment) : _lgrp_id(l), _last_page_scanned(NULL), _allocation_failed(false) {
-      _space = new MutableSpace(alignment);
-      _alloc_rate = new AdaptiveWeightedAverage(NUMAChunkResizeWeight);
-    }
-    ~LGRPSpace() {
-      delete _space;
-      delete _alloc_rate;
-    }
-
-    void add_invalid_region(MemRegion r) {
-      if (!_invalid_region.is_empty()) {
-      _invalid_region.set_start(MIN2(_invalid_region.start(), r.start()));
-      _invalid_region.set_end(MAX2(_invalid_region.end(), r.end()));
-      } else {
-      _invalid_region = r;
-      }
-    }
-
-    static bool equals(void* lgrp_id_value, LGRPSpace* p) {
-      return *(int*)lgrp_id_value == p->lgrp_id();
-    }
-
-    // Report a failed allocation.
-    void set_allocation_failed() { _allocation_failed = true;  }
-
-    void sample() {
-      // If there was a failed allocation make allocation rate equal
-      // to the size of the whole chunk. This ensures the progress of
-      // the adaptation process.
-      size_t alloc_rate_sample;
-      if (_allocation_failed) {
-        alloc_rate_sample = space()->capacity_in_bytes();
-        _allocation_failed = false;
-      } else {
-        alloc_rate_sample = space()->used_in_bytes();
-      }
-      alloc_rate()->sample(alloc_rate_sample);
-    }
-
-    MemRegion invalid_region() const                { return _invalid_region;      }
-    void set_invalid_region(MemRegion r)            { _invalid_region = r;         }
-    int lgrp_id() const                             { return _lgrp_id;             }
-    MutableSpace* space() const                     { return _space;               }
-    AdaptiveWeightedAverage* alloc_rate() const     { return _alloc_rate;          }
-    void clear_alloc_rate()                         { _alloc_rate->clear();        }
-    SpaceStats* space_stats()                       { return &_space_stats;        }
-    void clear_space_stats()                        { _space_stats = SpaceStats(); }
-
-    void accumulate_statistics(size_t page_size);
-    void scan_pages(size_t page_size, size_t page_count);
-  };
-
-  GrowableArray<LGRPSpace*>* _lgrp_spaces;
-  size_t _page_size;
-  unsigned _adaptation_cycles, _samples_count;
-
-  bool _must_use_large_pages;
-
-  void set_page_size(size_t psz)                     { _page_size = psz;          }
-  size_t page_size() const                           { return _page_size;         }
-
-  unsigned adaptation_cycles()                       { return _adaptation_cycles; }
-  void set_adaptation_cycles(int v)                  { _adaptation_cycles = v;    }
-
-  unsigned samples_count()                           { return _samples_count;     }
-  void increment_samples_count()                     { ++_samples_count;          }
-
-  size_t _base_space_size;
-  void set_base_space_size(size_t v)                 { _base_space_size = v;      }
-  size_t base_space_size() const                     { return _base_space_size;   }
-
-  // Check if the NUMA topology has changed. Add and remove spaces if needed.
-  // The update can be forced by setting the force parameter equal to true.
-  bool update_layout(bool force);
-  // Bias region towards the lgrp.
-  void bias_region(MemRegion mr, int lgrp_id);
-  // Free pages in a given region.
-  void free_region(MemRegion mr);
-  // Get current chunk size.
-  size_t current_chunk_size(int i);
-  // Get default chunk size (equally divide the space).
-  size_t default_chunk_size();
-  // Adapt the chunk size to follow the allocation rate.
-  size_t adaptive_chunk_size(int i, size_t limit);
-  // Scan and free invalid pages.
-  void scan_pages(size_t page_count);
-  // Return the bottom_region and the top_region. Align them to page_size() boundary.
-  // |------------------new_region---------------------------------|
-  // |----bottom_region--|---intersection---|------top_region------|
-  void select_tails(MemRegion new_region, MemRegion intersection,
-                    MemRegion* bottom_region, MemRegion *top_region);
-  // Try to merge the invalid region with the bottom or top region by decreasing
-  // the intersection area. Return the invalid_region aligned to the page_size()
-  // boundary if it's inside the intersection. Return non-empty invalid_region
-  // if it lies inside the intersection (also page-aligned).
-  // |------------------new_region---------------------------------|
-  // |----------------|-------invalid---|--------------------------|
-  // |----bottom_region--|---intersection---|------top_region------|
-  void merge_regions(MemRegion new_region, MemRegion* intersection,
-                     MemRegion *invalid_region);
-
- public:
-     
-  // Initializing the HeapRegion not only resets the data structure, but also
-  // resets the BOT for that heap region.
-  // The default values for clear_space means that we will do the clearing if
-  // there's clearing to be done ourselves. We also always mangle the space.
   virtual void initialize(MemRegion mr, bool clear_space = false, bool mangle_space = SpaceDecorator::Mangle);
   
-  GrowableArray<LGRPSpace*>* lgrp_spaces() const     { return _lgrp_spaces;       }
-   G1NUMASpace(uint hrm_index,
-             G1BlockOffsetTable* bot,
-             MemRegion mr)
-    : HeapRegion(hrm_index, bot, mr){ }
-   
-  virtual ~G1NUMASpace();
-  // Update space layout if necessary. Do all adaptive resizing job.
-  virtual void update();
-  // Update allocation rate averages.
-  virtual void accumulate_statistics();
-
-  virtual void clear(bool mangle_space);
-  virtual void mangle_unused_area() PRODUCT_RETURN;
-  virtual void mangle_unused_area_complete() PRODUCT_RETURN;
-  virtual void mangle_region(MemRegion mr) PRODUCT_RETURN;
-  virtual void check_mangled_unused_area(HeapWord* limit) PRODUCT_RETURN;
-  virtual void check_mangled_unused_area_complete() PRODUCT_RETURN;
-  virtual void set_top_for_allocations(HeapWord* v) PRODUCT_RETURN;
-  virtual void set_top_for_allocations() PRODUCT_RETURN;
-
-  virtual void ensure_parsability();
-  virtual size_t used_in_words() const;
-  virtual size_t free_in_words() const;
-
-  virtual size_t capacity_in_words(Thread* thr) const;
-  virtual size_t tlab_capacity(Thread* thr) const;
-  virtual size_t tlab_used(Thread* thr) const;
-  virtual size_t unsafe_max_tlab_alloc(Thread* thr) const;
-
-  // Allocation (return NULL if full)
-  virtual HeapWord* allocate(size_t word_size);
-  virtual HeapWord* cas_allocate(size_t word_size);
-
-  // Debugging
-  virtual void print_on(outputStream* st) const;
-  virtual void print_short_on(outputStream* st) const;
-
-  virtual void set_top(HeapWord* value);
+private:
+    
+    size_t _page_size;
+    
+    size_t page_size() const { return _page_size; }
+    void set_page_size(size_t newSize) { _page_size = newSize; }
+    
+    void bias_region(MemRegion mr, int lgrp_id);
+    void free_region(MemRegion mr);
 };
